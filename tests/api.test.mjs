@@ -16,3 +16,10 @@ test('chat renders verified quotations rather than model paraphrases',async()=>{
  globalThis.fetch=async url=>{if(url.endsWith('rpc/check_rate'))return Response.json(true);if(url.includes('/documents?'))return Response.json([{id:'a',title:'Leaflet',content:'Discuss recovery questions with your team.'}]);if(url.includes('groq.com'))return Response.json({choices:[{message:{content:JSON.stringify({supported:true,answer:'Injected unverified answer',passages:[{source:1,quote:'Discuss recovery questions with your team.'}]})}}]});throw Error('Unexpected request')};
  try {const d=await (await request('chat',{question:'recovery questions'})).json();assert.equal(d.supported,true);assert.match(d.answer,/Discuss recovery/);assert.doesNotMatch(d.answer,/Injected/);assert.equal(d.offerReview,true)}finally{globalThis.fetch=original}
 });
+
+test('provider failures expose a safe diagnostic reference without raw data',async()=>{
+ for(const status of [400,401,429,503]){
+ globalThis.fetch=async url=>{if(url.endsWith('rpc/check_rate'))return Response.json(true);if(url.includes('/documents?'))return Response.json([{id:'a',title:'Leaflet',content:'Discuss recovery questions with your team.'}]);if(url.includes('groq.com'))return Response.json({error:{code:status===400?'json_validate_failed':'unknown_private_code',message:'SECRET RAW PAYLOAD'}},{status});throw Error('Unexpected request')};
+ try{const d=await (await request('chat',{question:'recovery questions'})).json();assert.match(d.error,new RegExp('HTTP '+status));assert.doesNotMatch(d.error,/SECRET|unknown_private_code/);if(status===400)assert.match(d.error,/json_validate_failed/);if(status===429)assert.match(d.error,/usage limit/)}finally{globalThis.fetch=original}
+ }
+});
