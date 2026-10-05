@@ -1,11 +1,15 @@
-# Use the full resource library
+# Driving answer and evidence update
 
-Upload this update into the existing GitHub repository and wait for Cloudflare deployment success. No new keys or database changes are needed.
+Upload the contents of this archive into your existing GitHub repository. Wait for Cloudflare deployment Success and refresh the website. No new secrets or SQL changes are needed.
 
-In Clinician workspace, open Resources awaiting review. Review and approve each suitable revision 2 resource, or replace its old approved version. The 11 PDFs appear in 18 parts: longer documents have several parts. Approve every relevant part of a document. Check original layouts and text before approval. Older bowel policies and specialist driving guidance need particular review for currency and suitability.
+In Clinician workspace, Resources awaiting review includes two new drafts:
+- Patient answer · driving · unknown-operation · draft 1
+- Patient answer · driving · single-level · draft 1
 
-The chatbot searches all active approved resources, selecting relevant passages rather than sending every PDF to the model. Retrieval now limits repeated passages from one resource so other matching resources can be included. Procedure-specific questions still use the matching operation leaflets.
+Read, edit and approve these drafts against your own clinical guidance. Preserve the first [Reviewed driving answer: ...] line and [Review notes] marker: the text between them is the patient answer. Notes below the second marker are for review only. The general draft is proposed service guidance requiring your approval; it does not assume every operation has the same waiting period. Approved drafts are shown verbatim, bypassing LLM paraphrasing. Nothing is activated without your approval.
 
-Answer instructions now require time limits and conditions to stay attached to the advice they qualify, and unrelated advice to be omitted. Ambiguous wording should lead to clarification. These are improvements, not proof that every LLM answer is correct.
+Test: How long after spinal surgery can I drive? Then test: When can I drive after single-level spinal fixation? The first should not demand a technical operation name or give a fixed waiting period. It should direct the patient to their own team and offer nurse review. The second should preserve depending on your symptoms and avoid linking the three-month travel advice to all driving conditions.
 
-Test questions against each original source, including single-level driving conditions, multi-level driving guidance, radiotherapy information, and an unanswered question. Check citations, omissions, and incorrect combinations before considering the test passed.
+Other questions still search the full approved resource library. The LLM now selects source quotations; the server checks them against the source and constructs the displayed answer itself. It rejects fabricated quotations. This verifies text identity, not relevance, clinical correctness or completeness. Read returned sources during testing. It does not implement an emergency symptom triage service.
+
+Nurse email is still unconfigured in the current deployment. The review button cannot deliver an email until that integration is configured. Patients should use their existing clinical contact route for advice and should not wait for an email in an urgent situation.
