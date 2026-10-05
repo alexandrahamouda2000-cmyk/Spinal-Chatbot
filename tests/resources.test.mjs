@@ -10,3 +10,8 @@ test('single-level driving excerpt keeps work timeline in its own section',()=>{
  assert.ok(driving);assert.match(driving.content,/emergency stop/);assert.match(driving.content,/6 weeks/);
  assert.doesNotMatch(driving.content,/Return to work|3 months/);
 });
+
+test('retrieval includes relevant passages from multiple approved documents',()=>{
+ const result=retrieve('radiotherapy side effects',[{id:'a',title:'Leaflet A',content:'Radiotherapy side effects include information in leaflet A. '.repeat(120)},{id:'b',title:'Leaflet B',content:'Radiotherapy side effects are described in leaflet B.'}]);
+ assert.ok(result.some(x=>x.id==='a'));assert.ok(result.some(x=>x.id==='b'));assert.ok(result.filter(x=>x.id==='a').length<=2);
+});
