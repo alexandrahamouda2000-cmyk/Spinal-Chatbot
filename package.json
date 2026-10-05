@@ -1,0 +1,14 @@
+{
+  "name": "spinal-support-poc",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node dev.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "build:cloudflare": "node scripts/prepare-cloudflare.mjs",
+    "deploy:cloudflare": "npm run build:cloudflare && npx wrangler@4 deploy"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}
