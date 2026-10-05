@@ -30,3 +30,7 @@ function renderPending(){
  const label=el('label','Extracted resource text');const text=el('textarea');text.rows=10;text.value=source.content;label.append(text);const checkLabel=el('label',null,'check');const check=el('input');check.type='checkbox';checkLabel.append(check,document.createTextNode('I have checked this text and approve it for the chatbot.'));
  const button=el('button',approved.has(source.id)?'Replace approved resource':'Approve resource','primary');button.onclick=async()=>{if(!check.checked)return note('Please confirm that you have reviewed the resource.');if(!text.value.trim())return note('The resource text is empty.');button.disabled=true;try{const doc={id:source.id,title:source.title,content:text.value};if(connected){await api('document',doc);await refresh()}else{state.documents=state.documents.filter(x=>x.id!==doc.id);state.documents.push(doc);save();render()}note('Resource approved and available to the chatbot.')}catch(e){note(e.message);button.disabled=false}};box.append(label,checkLabel,button);holder.append(box)}
 }
+
+const connectionTest=el('button','Test LLM connection');
+connectionTest.onclick=async()=>{if(!connected)return note('Open the connected clinician workspace first.');connectionTest.disabled=true;try{const result=await api('diagnostic');note(result.ok?result.detail:`LLM test: HTTP ${result.status||'configuration'} · ${result.detail}`)}catch(e){note(e.message)}finally{connectionTest.disabled=false}};
+$('#workspace').prepend(connectionTest);

@@ -23,3 +23,13 @@ test('provider failures expose a safe diagnostic reference without raw data',asy
  try{const d=await (await request('chat',{question:'recovery questions'})).json();assert.match(d.error,new RegExp('HTTP '+status));assert.doesNotMatch(d.error,/SECRET|unknown_private_code/);if(status===400)assert.match(d.error,/json_validate_failed/);if(status===429)assert.match(d.error,/usage limit/)}finally{globalThis.fetch=original}
  }
 });
+
+test('connection diagnostic requires clinician authentication',async()=>{const r=await request('diagnostic');assert.equal(r.status,401)});
+test('LLM request explicitly asks for JSON when using JSON mode',async()=>{
+ globalThis.fetch=async(url,opts)=>{if(url.endsWith('rpc/check_rate'))return Response.json(true);if(url.includes('/documents?'))return Response.json([{id:'a',title:'Leaflet',content:'Discuss recovery questions with your team.'}]);if(url.includes('groq.com')){const body=JSON.parse(opts.body);assert.equal(body.response_format.type,'json_object');assert.match(body.messages[0].content,/JSON/);assert.equal(body.max_completion_tokens,2000);return Response.json({choices:[{message:{content:'{"supported":false}'}}]})}throw Error('Unexpected request')};
+ try{await request('chat',{question:'recovery questions'})}finally{globalThis.fetch=original}
+});
+test('diagnostic uses synthetic data and redacts key from errors',async()=>{
+ globalThis.fetch=async(url,opts)=>{assert.ok(url.includes('groq.com'));const body=JSON.parse(opts.body);assert.match(body.messages[1].content,/connection test/);return Response.json({error:{message:'Invalid key '+env.GROQ_API_KEY}},{status:400})};
+ try{const d=await (await request('diagnostic',{},env.ADMIN_TOKEN)).json();assert.equal(d.status,400);assert.doesNotMatch(d.detail,/test-groq/);assert.match(d.detail,/redacted/)}finally{globalThis.fetch=original}
+});
